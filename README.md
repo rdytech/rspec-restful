@@ -44,13 +44,14 @@ RSpec.describe WidgetsController, type: :controller do
   describe_restful_new_action
   describe_restful_create_action(Widget, url_method: :widgets_path)
   describe_restful_edit_action(:widget)
-  describe_restful_update_action(Widget, url_method: :widgets_path)
+  describe_restful_update_action(Widget, url_method: :widgets_path, object_method: :widget)
   describe_restful_destroy_action(Widget, url_method: :widgets_path)
 end
 ```
 
 This expects that a FactoryGirl factory named `:widget` is available to create
-objects.
+objects, however if an `:object_method` option is passed, this will be called
+instead.
 
 ## Development
 

@@ -89,9 +89,13 @@ module RspecRestful
       end
     end
 
-    def describe_restful_edit_action(resource)
+    def describe_restful_edit_action(resource, options = {})
       describe 'GET :edit' do
-        let(:item) { create(resource) }
+        if options[:object_method].present?
+          let(:item) { self.send(options[:object_method]) }
+        else
+          let(:item) { create(resource) }
+        end
 
         before do
           get :edit, id: item.id
@@ -111,7 +115,11 @@ module RspecRestful
       name = name.to_sym
 
       describe 'on PUT to :update' do
-        before { @item = create(name) }
+        if options[:object_method].present?
+          before { @item = self.send(options[:object_method]) }
+        else
+          before { @item = create(name) }
+        end
 
         context 'with valid data' do
           before do
@@ -145,18 +153,19 @@ module RspecRestful
       name = name.to_sym
 
       describe 'on DELETE to :destroy' do
-        before do
-          @item = create(name)
-          delete :destroy, id: @item.id
+        if options[:object_method].present?
+          before { @item = self.send(options[:object_method]) }
+        else
+          before { @item = create(name) }
         end
 
         it "redirects to #{url_method}" do
+          delete :destroy, id: @item.id
           expect(response).to be_redirect
           expect(response).to redirect_to(send(url_method))
         end
 
         it "destroys a #{klass.name}" do
-          @item = create(name)
           expect do
             delete :destroy, id: @item.id
           end.to change(klass, :count).by(-1)
