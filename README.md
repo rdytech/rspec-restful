@@ -41,9 +41,10 @@ RSpec.describe WidgetsController, type: :controller do
   let(:test_widget_params) {{ name: "Goat Herder" }}
 
   describe_restful_index_action
+  describe_restful_show_action(Widget)
   describe_restful_new_action
   describe_restful_create_action(Widget, url_method: :widgets_path)
-  describe_restful_edit_action(:widget)
+  describe_restful_edit_action(Widget)
   describe_restful_update_action(Widget, url_method: :widgets_path, object_method: :widget)
   describe_restful_destroy_action(Widget, url_method: :widgets_path)
 end

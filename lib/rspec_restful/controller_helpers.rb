@@ -13,9 +13,11 @@ module RspecRestful
       end
     end
 
-    def describe_restful_show_action(resource)
+    def describe_restful_show_action(klass, options = {})
+      factory_name = extract_factory_name(klass, options)
+
       describe 'on GET to :show' do
-        let(:item) { create(resource) }
+        let(:item) { create(factory_name) }
 
         before do
           get :show, id: item.id
@@ -45,16 +47,16 @@ module RspecRestful
     # current spec group. This should return a hash with the params you want
     # passed to the action.
     def describe_restful_create_action(klass, options = {})
-      name = klass.name.underscore
-      url_method = options[:url_method] || (name.pluralize + '_url').to_sym
-      params_method = ('test_' + name + '_params').to_sym
-      name = name.to_sym
+      factory_name = extract_factory_name(klass, options)
+      url_method = url_method_for_klass(klass, options)
+      params_method = params_method_for_klass(klass)
+      klass_name_symbol = symbolized_klass_name(klass)
 
       describe 'POST :create' do
         context 'with valid data' do
           before do
             stub_as_always_valid(klass)
-            post :create, name => send(params_method)
+            post :create, klass_name_symbol => send(params_method)
           end
 
           it "redirects to #{url_method}" do
@@ -64,7 +66,7 @@ module RspecRestful
 
           it "creates a #{klass.name}" do
             expect do
-              post :create, name => send(params_method)
+              post :create, klass_name_symbol => send(params_method)
             end.to change(klass, :count).by(1)
           end
         end
@@ -72,7 +74,7 @@ module RspecRestful
         context 'with invalid data' do
           before do
             stub_as_never_valid(klass)
-            post :create, name => send(params_method)
+            post :create, klass_name_symbol => send(params_method)
           end
 
           it 'renders the :new template with 200 status' do
@@ -82,20 +84,18 @@ module RspecRestful
 
           it "doesn't create a #{klass.name}" do
             expect do
-              post :create, name => send(params_method)
+              post :create, klass_name_symbol => send(params_method)
             end.not_to change(klass, :count)
           end
         end
       end
     end
 
-    def describe_restful_edit_action(resource, options = {})
+    def describe_restful_edit_action(klass, options = {})
+      factory_name = extract_factory_name(klass, options)
+
       describe 'GET :edit' do
-        if options[:object_method].present?
-          let(:item) { self.send(options[:object_method]) }
-        else
-          let(:item) { create(resource) }
-        end
+        let(:item) { create(factory_name) }
 
         before do
           get :edit, id: item.id
@@ -109,22 +109,20 @@ module RspecRestful
     end
 
     def describe_restful_update_action(klass, options = {})
-      name = klass.name.underscore
-      url_method = options[:url_method] || (name.pluralize + '_url').to_sym
-      params_method = ('test_' + name + '_params').to_sym
-      name = name.to_sym
+      factory_name = extract_factory_name(klass, options)
+      url_method = url_method_for_klass(klass, options)
+      params_method = params_method_for_klass(klass)
+      klass_name_symbol = symbolized_klass_name(klass)
 
       describe 'on PUT to :update' do
-        if options[:object_method].present?
-          before { @item = self.send(options[:object_method]) }
-        else
-          before { @item = create(name) }
+        before do
+          @item = create(factory_name)
         end
 
         context 'with valid data' do
           before do
             stub_as_always_valid(klass)
-            put :update, id: @item.id, name => send(params_method)
+            put :update, id: @item.id, klass_name_symbol => send(params_method)
           end
 
           it "redirects to #{url_method}" do
@@ -136,7 +134,7 @@ module RspecRestful
         context 'with invalid data' do
           before do
             stub_as_never_valid(klass)
-            put :update, id: @item.id, name => send(params_method)
+            put :update, id: @item.id, klass_name_symbol => send(params_method)
           end
 
           it 'renders the :edit template with 200 status' do
@@ -148,15 +146,12 @@ module RspecRestful
     end
 
     def describe_restful_destroy_action(klass, options = {})
-      name = klass.name.underscore
-      url_method = options[:url_method] || (name.pluralize + '_url').to_sym
-      name = name.to_sym
+      factory_name = extract_factory_name(klass, options)
+      url_method = url_method_for_klass(klass, options)
 
       describe 'on DELETE to :destroy' do
-        if options[:object_method].present?
-          before { @item = self.send(options[:object_method]) }
-        else
-          before { @item = create(name) }
+        before do
+          @item = create(factory_name)
         end
 
         it "redirects to #{url_method}" do
@@ -171,6 +166,28 @@ module RspecRestful
           end.to change(klass, :count).by(-1)
         end
       end
+    end
+
+    private
+
+    def extract_factory_name(klass, options)
+      options[:object_method].presence || symbolized_klass_name(klass)
+    end
+
+    def url_method_for_klass(klass, options)
+      options[:url_method] || (underscored_klass_name(klass).pluralize + '_url').to_sym
+    end
+
+    def params_method_for_klass(klass)
+      ('test_' + underscored_klass_name(klass) + '_params').to_sym
+    end
+
+    def symbolized_klass_name(klass)
+      underscored_klass_name(klass).to_sym
+    end
+
+    def underscored_klass_name(klass)
+      klass.name.underscore
     end
   end
 end
