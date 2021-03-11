@@ -18,7 +18,7 @@ module RspecRestful
         let(:item) { create(resource) }
 
         before do
-          get :show, id: item.id
+          get :show, params: { id: item.id }
         end
 
         it 'renders the :show template with 200 status' do
@@ -54,7 +54,7 @@ module RspecRestful
         context 'with valid data' do
           before do
             stub_as_always_valid(klass)
-            post :create, name => send(params_method)
+            post :create, params: { name => send(params_method) }
           end
 
           it "redirects to #{url_method}" do
@@ -64,7 +64,7 @@ module RspecRestful
 
           it "creates a #{klass.name}" do
             expect do
-              post :create, name => send(params_method)
+              post :create, params: { name => send(params_method) }
             end.to change(klass, :count).by(1)
           end
         end
@@ -72,7 +72,7 @@ module RspecRestful
         context 'with invalid data' do
           before do
             stub_as_never_valid(klass)
-            post :create, name => send(params_method)
+            post :create, params: { name => send(params_method) }
           end
 
           it 'renders the :new template with 200 status' do
@@ -82,7 +82,7 @@ module RspecRestful
 
           it "doesn't create a #{klass.name}" do
             expect do
-              post :create, name => send(params_method)
+              post :create, params: { name => send(params_method) }
             end.not_to change(klass, :count)
           end
         end
@@ -98,7 +98,7 @@ module RspecRestful
         end
 
         before do
-          get :edit, id: item.id
+          get :edit, params: { id: item.id }
         end
 
         it 'renders the :edit template with 200 status' do
@@ -124,7 +124,7 @@ module RspecRestful
         context 'with valid data' do
           before do
             stub_as_always_valid(klass)
-            put :update, id: @item.id, name => send(params_method)
+            put :update, params: { id: @item.id, name => send(params_method) }
           end
 
           it "redirects to #{url_method}" do
@@ -136,7 +136,7 @@ module RspecRestful
         context 'with invalid data' do
           before do
             stub_as_never_valid(klass)
-            put :update, id: @item.id, name => send(params_method)
+            put :update, params: { id: @item.id, name => send(params_method) }
           end
 
           it 'renders the :edit template with 200 status' do
@@ -160,14 +160,14 @@ module RspecRestful
         end
 
         it "redirects to #{url_method}" do
-          delete :destroy, id: @item.id
+          delete :destroy, params: { id: @item.id }
           expect(response).to be_redirect
           expect(response).to redirect_to(send(url_method))
         end
 
         it "destroys a #{klass.name}" do
           expect do
-            delete :destroy, id: @item.id
+            delete :destroy, params: { id: @item.id }
           end.to change(klass, :count).by(-1)
         end
       end
