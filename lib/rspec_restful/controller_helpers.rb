@@ -7,7 +7,7 @@ module RspecRestful
         end
 
         it 'renders the :index template with 200 status' do
-          expect(response).to be_success
+          expect(response).to be_successful
           expect(response).to render_template('index')
         end
       end
@@ -22,7 +22,7 @@ module RspecRestful
         end
 
         it 'renders the :show template with 200 status' do
-          expect(response).to be_success
+          expect(response).to be_successful
           expect(response).to render_template('show')
         end
       end
@@ -35,7 +35,7 @@ module RspecRestful
         end
 
         it 'renders the :new template with 200 status' do
-          expect(response).to be_success
+          expect(response).to be_successful
           expect(response).to render_template('new')
         end
       end
@@ -76,7 +76,7 @@ module RspecRestful
           end
 
           it 'renders the :new template with 200 status' do
-            expect(response).to be_success
+            expect(response).to be_successful
             expect(response).to render_template(:new)
           end
 
@@ -102,7 +102,7 @@ module RspecRestful
         end
 
         it 'renders the :edit template with 200 status' do
-          expect(response).to be_success
+          expect(response).to be_successful
           expect(response).to render_template('edit')
         end
       end
@@ -140,7 +140,7 @@ module RspecRestful
           end
 
           it 'renders the :edit template with 200 status' do
-            expect(response).to be_success
+            expect(response).to be_successful
             expect(response).to render_template('edit')
           end
         end
